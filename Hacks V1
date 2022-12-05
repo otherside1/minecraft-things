@@ -1,0 +1,28 @@
+// ...
+
+public class MyMod implements ModInitializer {
+    // Define a key binding for the op toggle
+    private static final KeyBinding OP_TOGGLE = new KeyBinding("key.mymod.op_toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_O, "My Mod");
+
+    @Override
+    public void onInitialize() {
+        // Register the op toggle key binding
+        MinecraftClient.getInstance().options.keyToggleFlysprint.addKeyBinding(OP_TOGGLE);
+
+        // Register the player tick event
+        PlayerTickCallback.EVENT.register(event -> {
+            // Get the current player
+            PlayerEntity player = event.player;
+
+            // Check if the op toggle key is pressed
+            if (OP_TOGGLE.isPressed()) {
+                // Create a packet buffer to send the op toggle request
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                // Send a packet to the server indicating that the player has permission to become an operator
+                buf.writeBoolean(true);
+                // Send the packet to the server
+                ClientSidePacketRegistry.INSTANCE.sendToServer(MyModPackets.OP_TOGGLE, buf);
+            }
+        });
+    }
+}
